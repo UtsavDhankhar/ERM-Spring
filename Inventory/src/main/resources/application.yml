@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ShreeJee
+    username: postgres
+    password: admin
+    driver-class-name : org.postgresql.Driver
+
+  mvc:
+    time-zone: Asia/Kolkata
+
+  application:
+    name: Inventory
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        type:
+          preferred_enum_type: postgres_enum
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace

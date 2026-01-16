@@ -1,7 +1,6 @@
 package com.shreejee.Inventory.controller;
 
 import com.shreejee.Inventory.dto.MaterialCategoryDto;
-import com.shreejee.Inventory.dto.MaterialDto;
 import com.shreejee.Inventory.dto.MaterialPriceDto;
 import com.shreejee.Inventory.service.MaterialPriceService;
 import com.shreejee.Inventory.service.MaterialService;

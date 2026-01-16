@@ -8,5 +8,6 @@ public record SalesOrderRq (
         String orderNo,
         LocalDate orderDate,
         String remarks,
-        List<SalesOrderLineRq> salesOrderLineList
+        List<SalesOrderLineRq> salesOrderLineList,
+        List<SalesArticlePriceRq> salesArticlePriceList
 ){}

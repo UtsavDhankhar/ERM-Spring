@@ -1,15 +1,18 @@
 package com.shreejee.Inventory.service;
 
 import com.shreejee.Inventory.dto.MaterialCategoryDto;
-import com.shreejee.Inventory.dto.MaterialDto;
+import com.shreejee.Inventory.dto.response.MaterialCategoryRs;
+import com.shreejee.Inventory.dto.response.MaterialRs;
 import com.shreejee.Inventory.entity.Material;
 import com.shreejee.Inventory.entity.MaterialCategory;
+import com.shreejee.Inventory.entity.SupplierMaterialPrice;
 import com.shreejee.Inventory.repo.MaterialCategoryRepo;
 import com.shreejee.Inventory.repo.MaterialRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class MaterialService {
@@ -22,19 +25,26 @@ public class MaterialService {
         this.materialCategoryRepo = materialCategoryRepo;
     }
 
-    public MaterialDto getMaterialById(Long id) {
+    public MaterialRs getMaterialById(Long id) {
 
         Optional<Material> materialOptional = materialRepo.findById(id);
-        return materialOptional.map(material -> MaterialDto.builder()
+        return materialOptional.map(material -> MaterialRs.builder()
                 .id(id)
                 .name(material.getName())
                 .code(material.getCode())
                 .color(material.getColor())
-                .category(material.getCategory())
-                .supplierId(material.getSupplierId())
+                .materialCategoryRs(generateMaterialCategoryRs(material.getMaterialCategory()))
+                .subCategory(material.getSubCategory())
+                .materialSupplierPrices(generateSuppliers(material.getSupplierPrices())
                 .unitOfMeasure(material.getUnitOfMeasure())
                 .build()).orElse(null);
     }
+
+    private  generateSuppliers(Set<SupplierMaterialPrice> supplierPrices) {
+
+        supplierPrices.stream().map(supplierMaterialPrice -> s)
+    }
+
 
     public List<MaterialDto> getMaterialsByCategory(String materialCategory) {
 
@@ -111,6 +121,16 @@ public class MaterialService {
         return MaterialDto.builder()
                 .name(material.getName())
                 .id(material.getId())
+                .build();
+    }
+
+
+    private MaterialCategoryRs generateMaterialCategoryRs(MaterialCategory materialCategory) {
+
+        return MaterialCategoryRs.builder()
+                .id(materialCategory.getId())
+                .category(materialCategory.getCategory())
+                .name(materialCategory.getName())
                 .build();
     }
 }

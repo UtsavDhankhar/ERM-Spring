@@ -22,4 +22,6 @@ public class SalesOrderRs {
     SalesOrderStatus status;
     String remarks;
     List<SalesOrderLineRs> salesOrderLineRs;
+    List<SalesArticlePriceRs> salesArticlePriceRs;
+
 }

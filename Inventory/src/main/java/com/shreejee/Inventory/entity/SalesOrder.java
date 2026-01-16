@@ -44,4 +44,7 @@ public class SalesOrder extends BaseEntity {
     @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SalesOrderLine> salesOrderLines = new ArrayList<>();
 
+    @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SalesArticlePrice> salesArticlePrices = new ArrayList<>();
+
 }

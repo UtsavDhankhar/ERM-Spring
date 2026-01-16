@@ -8,6 +8,5 @@ public record SalesOrderLineRq (
         Long articleColorId,
         String size,
         Integer quantityOrdered,
-        LocalDate targetDispatchDate,
-        BigDecimal price
+        LocalDate targetDispatchDate
 ){ }

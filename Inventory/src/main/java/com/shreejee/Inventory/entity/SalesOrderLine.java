@@ -30,11 +30,13 @@ public class SalesOrderLine extends BaseEntity {
     @JoinColumn(name = "sales_order_id")
     private SalesOrder salesOrder;
 
-    @Column(name = "article_id", nullable = false)
-    private Long articleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id")
+    private Article article;
 
-    @Column(name = "article_color_id")
-    private Long articleColorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_color_id")
+    private ArticleColor articleColor;
 
     private String size;
 

@@ -34,18 +34,15 @@ public class SalesOrderController {
                 .body(salesOrderRs);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SalesOrderRs> getById(@PathVariable Long id) {
-        SalesOrderRs salesOrderRs = salesOrderService.getById(id);
-        return new ResponseEntity<>(salesOrderRs, HttpStatus.OK);
+    @GetMapping("/{brandId}")
+    public List<SalesOrderRs> listByBrand(@PathVariable Long brandId) {
+        return salesOrderService.listByBrand(brandId);
+
     }
 
     @GetMapping
-    public List<SalesOrderRs> listByBrand(@RequestParam(required = false) Long brandId) {
-        if (brandId != null) {
-            return salesOrderService.listByBrand(brandId);
-        }
-        // fallback: list all
-        return salesOrderService.listByBrand(null); // or add a separate method to listAll
+    public ResponseEntity<SalesOrderRs> getByOrderNo(@RequestParam(required = true) String orderNo) {
+        SalesOrderRs salesOrderRs = salesOrderService.getByOrderNo(orderNo);
+        return new ResponseEntity<>(salesOrderRs, HttpStatus.OK);
     }
 }

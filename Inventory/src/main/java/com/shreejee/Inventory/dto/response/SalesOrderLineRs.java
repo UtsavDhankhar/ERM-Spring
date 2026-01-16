@@ -15,7 +15,9 @@ public class SalesOrderLineRs {
 
     Long id;
     Long articleId;
+    String articleName;
     Long articleColorId;
+    String articleColor;
     String size;
     Integer quantityOrdered;
     LocalDate targetDispatchDate;

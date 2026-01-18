@@ -1,54 +1,65 @@
 package com.shreejee.Inventory.service;
 
-import com.shreejee.Inventory.dto.ArticleBomDto;
+import com.shreejee.Inventory.dto.request.ArticleBomCreateRq;
+import com.shreejee.Inventory.dto.response.ArticleBomRs;
 import com.shreejee.Inventory.entity.ArticleBom;
+import com.shreejee.Inventory.entity.Material;
+import com.shreejee.Inventory.projection.ArticleBomProjection;
 import com.shreejee.Inventory.repo.ArticleBomRepo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import static com.shreejee.Inventory.utils.DtoConvertors.generateMaterialDto;
-import static com.shreejee.Inventory.utils.DtoConvertors.generateMaterialFromDto;
 
 @Service
 public class ArticleBomService {
 
     private final ArticleBomRepo articleBomRepo;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public ArticleBomService(ArticleBomRepo articleBomRepo) {
         this.articleBomRepo = articleBomRepo;
     }
 
-    public List<ArticleBomDto> getArticleColorBom(Long articleColorId) {
+    public ArticleBomRs getArticleBomByArticleIdAndColorId(Long articleId, Long articleColorId) {
 
-        List<ArticleBom> articleBomList = articleBomRepo.findByArticleColorId(articleColorId);
+        List<ArticleBomProjection> articleBomProjections = articleBomRepo.findByArticleIdAndColorId(articleId, articleColorId);
+        if (!articleBomProjections.isEmpty()) {
+            ArticleBomRs articleBomRs = ArticleBomRs.builder()
+                    .articleId(articleBomProjections.getFirst().getArticleId())
+                    .articleColorId(articleBomProjections.getFirst().getArticleColorId())
+                    .build();
+            articleBomRs.setBomMaterialList(articleBomProjections);
+            return articleBomRs;
+        }
 
-        return articleBomList.stream()
-                .map(articleBom -> ArticleBomDto.builder()
-                        .id(articleBom.getId())
-                        .articleColorId(articleColorId)
-                        .articleId(articleBom.getArticleId())
-                        .material(generateMaterialDto(articleBom.getMaterial()))
-                        .quantityPerUnit(articleBom.getQuantityPerUnit())
-                        .wastagePercent(articleBom.getWastagePercent())
-                        .build())
-                .toList();
+        return ArticleBomRs.builder().build();
     }
 
-    public ArticleBomDto saveArticleBom(ArticleBomDto articleBomDto) {
+    public ArticleBomRs saveArticleBom(ArticleBomCreateRq articleBomCreateRq) {
 
-        ArticleBom articleBom = ArticleBom.builder()
-                .articleId(articleBomDto.getArticleId())
-                .articleColorId(articleBomDto.getArticleColorId())
-                .material(generateMaterialFromDto(articleBomDto.getMaterial()))
-                .quantityPerUnit(articleBomDto.getQuantityPerUnit())
-                .remarks(articleBomDto.getRemarks())
-                .wastagePercent(articleBomDto.getWastagePercent())
-                .build();
 
-        articleBom = articleBomRepo.save(articleBom);
+        Long articleId = articleBomCreateRq.articleId();
+        Long articleColorId = articleBomCreateRq.articleColorId();
 
-        return ArticleBomDto.builder()
-                .id(articleBom.getId())
+        List<ArticleBom> articleBoms = articleBomCreateRq.bomMaterialCreateRqList().stream()
+                .map(bomMaterial -> ArticleBom.builder()
+                        .articleId(articleId)
+                        .articleColorId(articleColorId)
+                        .wastagePercent(bomMaterial.wastagePercent())
+                        .quantityPerUnit(bomMaterial.quantityPerUnit())
+                        .remarks(bomMaterial.remarks())
+                        .material(entityManager.getReference(Material.class, bomMaterial.materialId()))
+                        .build())
+                .toList();
+
+        List<ArticleBom> articleBomsRs = articleBomRepo.saveAll(articleBoms);
+
+        return ArticleBomRs.builder()
+                .articleId(articleBomsRs.getFirst().getArticleId())
                 .build();
     }
 

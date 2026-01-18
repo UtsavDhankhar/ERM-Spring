@@ -1,8 +1,8 @@
 package com.shreejee.Inventory.controller;
 
 import com.shreejee.Inventory.dto.MaterialCategoryDto;
-import com.shreejee.Inventory.dto.MaterialPriceDto;
-import com.shreejee.Inventory.service.MaterialPriceService;
+import com.shreejee.Inventory.dto.request.MaterialCreateRq;
+import com.shreejee.Inventory.dto.response.MaterialRs;
 import com.shreejee.Inventory.service.MaterialService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,17 +20,16 @@ import java.util.List;
 public class MaterialController {
 
     private final MaterialService materialService;
-    private final MaterialPriceService materialPriceService;
+//    private final MaterialPriceService materialPriceService;
 
-    public MaterialController(MaterialService materialService, MaterialPriceService materialPriceService) {
+    public MaterialController(MaterialService materialService) {
         this.materialService = materialService;
-        this.materialPriceService = materialPriceService;
     }
 
     @GetMapping("{materialId}")
-    public ResponseEntity<MaterialDto> getMaterialById(@PathVariable Long materialId) {
-        MaterialDto materialDto = materialService.getMaterialById(materialId);
-        return new ResponseEntity<>(materialDto, HttpStatus.OK);
+    public ResponseEntity<MaterialRs> getMaterialById(@PathVariable Long materialId) {
+        MaterialRs MaterialRs = materialService.getMaterialById(materialId);
+        return new ResponseEntity<>(MaterialRs, HttpStatus.OK);
     }
 
     @PostMapping("materialCategory")
@@ -46,39 +45,39 @@ public class MaterialController {
     }
 
     @PostMapping
-    public ResponseEntity<MaterialDto> saveMaterial(@RequestBody MaterialDto materialDto) {
-        MaterialDto savedMaterial = materialService.saveMaterial(materialDto);
+    public ResponseEntity<MaterialRs> saveMaterial(@RequestBody MaterialCreateRq materialCreateRq) {
+        MaterialRs savedMaterial = materialService.saveMaterial(materialCreateRq);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedMaterial);
     }
 
     @GetMapping("materialCategory/{materialCategory}")
-    public ResponseEntity<List<MaterialDto>> getMaterialByCategory(@PathVariable String materialCategory) {
-        List<MaterialDto> materialDtoList = materialService.getMaterialsByCategory(materialCategory);
-        return new ResponseEntity<>(materialDtoList, HttpStatus.OK);
+    public ResponseEntity<List<MaterialRs>> getMaterialByCategory(@PathVariable String materialCategory) {
+        List<MaterialRs> MaterialRsList = materialService.getMaterialsByCategory(materialCategory);
+        return new ResponseEntity<>(MaterialRsList, HttpStatus.OK);
     }
 
     @GetMapping()
-    public ResponseEntity<List<MaterialDto>> getMaterialList() {
-        List<MaterialDto> materials = materialService.getMaterials();
+    public ResponseEntity<List<MaterialRs>> getMaterialList() {
+        List<MaterialRs> materials = materialService.getMaterials();
         return new ResponseEntity<>(materials, HttpStatus.OK);
     }
 
-    @GetMapping("materialPrice/{materialPriceId}")
-    public ResponseEntity<MaterialPriceDto> getMaterialPrice(@PathVariable Long materialPriceId) {
-        MaterialPriceDto materialPriceDto = materialPriceService.getMaterialPrice(materialPriceId);
-        return new ResponseEntity<>(materialPriceDto, HttpStatus.OK);
-    }
-
-    @GetMapping("materialPrice/{materialId}")
-    public ResponseEntity<List<MaterialPriceDto>> getMaterialPrices(@PathVariable Long materialId) {
-        List<MaterialPriceDto> materialPriceDtos = materialPriceService.getMaterialPriceList(materialId);
-        return new ResponseEntity<>(materialPriceDtos, HttpStatus.OK);
-    }
-
-    @PostMapping("materialPrice")
-    public ResponseEntity<MaterialPriceDto> saveMaterialPrice(@RequestBody MaterialPriceDto materialPriceDto) {
-        materialPriceDto = materialPriceService.saveMaterialPrice(materialPriceDto);
-        return new ResponseEntity<>(materialPriceDto, HttpStatus.OK);
-    }
+//    @GetMapping("materialPrice/{materialPriceId}")
+//    public ResponseEntity<MaterialPriceDto> getMaterialPrice(@PathVariable Long materialPriceId) {
+//        MaterialPriceDto materialPriceDto = materialPriceService.getMaterialPrice(materialPriceId);
+//        return new ResponseEntity<>(materialPriceDto, HttpStatus.OK);
+//    }
+//
+//    @GetMapping("materialPrice/{materialId}")
+//    public ResponseEntity<List<MaterialPriceDto>> getMaterialPrices(@PathVariable Long materialId) {
+//        List<MaterialPriceDto> materialPriceDtos = materialPriceService.getMaterialPriceList(materialId);
+//        return new ResponseEntity<>(materialPriceDtos, HttpStatus.OK);
+//    }
+//
+//    @PostMapping("materialPrice")
+//    public ResponseEntity<MaterialPriceDto> saveMaterialPrice(@RequestBody MaterialPriceDto materialPriceDto) {
+//        materialPriceDto = materialPriceService.saveMaterialPrice(materialPriceDto);
+//        return new ResponseEntity<>(materialPriceDto, HttpStatus.OK);
+//    }
 
 }

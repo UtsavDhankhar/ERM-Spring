@@ -15,8 +15,8 @@ public class SupplierService {
         this.supplierRepo = supplierRepo;
     }
 
-    List<Supplier> fetchAllSupplier() {
-
-        List<Supplier> supplierList = supplierRepo.findAll();
-    }
+//    List<Supplier> fetchAllSupplier() {
+//
+//        List<Supplier> supplierList = supplierRepo.findAll();
+//    }
 }

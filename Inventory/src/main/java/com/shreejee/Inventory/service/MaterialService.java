@@ -1,13 +1,19 @@
 package com.shreejee.Inventory.service;
 
 import com.shreejee.Inventory.dto.MaterialCategoryDto;
+import com.shreejee.Inventory.dto.request.MaterialCreateRq;
 import com.shreejee.Inventory.dto.response.MaterialCategoryRs;
 import com.shreejee.Inventory.dto.response.MaterialRs;
 import com.shreejee.Inventory.entity.Material;
 import com.shreejee.Inventory.entity.MaterialCategory;
 import com.shreejee.Inventory.entity.SupplierMaterialPrice;
+import com.shreejee.Inventory.enums.UnitOfMeasure;
+import com.shreejee.Inventory.projection.MaterialSupplierPriceProjection;
 import com.shreejee.Inventory.repo.MaterialCategoryRepo;
 import com.shreejee.Inventory.repo.MaterialRepo;
+import com.shreejee.Inventory.repo.SupplierMaterialPriceRepo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,39 +25,45 @@ public class MaterialService {
 
     private final MaterialRepo materialRepo;
     private final MaterialCategoryRepo materialCategoryRepo;
+    private final SupplierMaterialPriceRepo supplierMaterialPriceRepo;
 
-    public MaterialService(MaterialRepo materialRepo, MaterialCategoryRepo materialCategoryRepo) {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public MaterialService(MaterialRepo materialRepo, MaterialCategoryRepo materialCategoryRepo, SupplierMaterialPriceRepo supplierMaterialPriceRepo) {
         this.materialRepo = materialRepo;
         this.materialCategoryRepo = materialCategoryRepo;
+        this.supplierMaterialPriceRepo = supplierMaterialPriceRepo;
     }
 
     public MaterialRs getMaterialById(Long id) {
 
         Optional<Material> materialOptional = materialRepo.findById(id);
-        return materialOptional.map(material -> MaterialRs.builder()
-                .id(id)
-                .name(material.getName())
-                .code(material.getCode())
-                .color(material.getColor())
-                .materialCategoryRs(generateMaterialCategoryRs(material.getMaterialCategory()))
+        List<MaterialSupplierPriceProjection> materialSupplierPriceProjectionList = supplierMaterialPriceRepo.getMaterialSupplierPrice(id);
+
+        if (materialOptional.isEmpty()) return null;
+
+        Material material = materialOptional.get();
+
+        MaterialRs materialRs = MaterialRs.builder().id(id)
                 .subCategory(material.getSubCategory())
-                .materialSupplierPrices(generateSuppliers(material.getSupplierPrices())
+                .name(material.getName())
+                .color(material.getColor())
                 .unitOfMeasure(material.getUnitOfMeasure())
-                .build()).orElse(null);
+                .build();
+
+        materialRs.generateMaterialSupplierPrices(materialSupplierPriceProjectionList);
+
+        return materialRs;
+
     }
 
-    private  generateSuppliers(Set<SupplierMaterialPrice> supplierPrices) {
 
-        supplierPrices.stream().map(supplierMaterialPrice -> s)
-    }
+    public List<MaterialRs> getMaterialsByCategory(String materialCategory) {
 
-
-    public List<MaterialDto> getMaterialsByCategory(String materialCategory) {
-
-        List<Material> materialList = materialRepo.findByCategory(materialCategory);
-
+        List<Material> materialList = materialRepo.findBySubCategory(materialCategory);
         return materialList.stream()
-                .map(material -> MaterialDto.builder()
+                .map(material -> MaterialRs.builder()
                         .id(material.getId())
                         .name(material.getName())
                         .code(material.getCode())
@@ -60,17 +72,16 @@ public class MaterialService {
     }
 
 
-    public List<MaterialDto> getMaterials() {
+    public List<MaterialRs> getMaterials() {
 
         List<Material> materialList = materialRepo.findAll();
         return materialList.stream()
-                .map(material -> MaterialDto.builder()
+                .map(material -> MaterialRs.builder()
                         .id(material.getId())
                         .name(material.getName())
                         .code(material.getCode())
                         .color(material.getColor())
-                        .category(material.getCategory())
-                        .supplierId(material.getSupplierId())
+                        .subCategory(material.getSubCategory())
                         .unitOfMeasure(material.getUnitOfMeasure())
                         .build())
                 .toList();
@@ -105,20 +116,19 @@ public class MaterialService {
                 .build();
     }
 
-    public MaterialDto saveMaterial(MaterialDto materialDto) {
+    public MaterialRs saveMaterial(MaterialCreateRq materialCreateRq) {
 
         Material material = Material.builder()
-                .name(materialDto.getName())
-                .category(materialDto.getCategory())
-                .code(materialDto.getCode())
-                .color(materialDto.getColor())
-                .unitOfMeasure(materialDto.getUnitOfMeasure())
-                .supplierId(materialDto.getSupplierId())
+                .code(materialCreateRq.code())
+                .name(materialCreateRq.name())
+                .subCategory(materialCreateRq.subCategory())
+                .unitOfMeasure(UnitOfMeasure.valueOf(materialCreateRq.unitOfMeasure()))
+                .color(materialCreateRq.color())
+                .materialCategory(entityManager.getReference(MaterialCategory.class, materialCreateRq.materialCategoryId()))
                 .build();
 
         material = materialRepo.save(material);
-
-        return MaterialDto.builder()
+        return MaterialRs.builder()
                 .name(material.getName())
                 .id(material.getId())
                 .build();

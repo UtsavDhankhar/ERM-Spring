@@ -1,6 +1,7 @@
 package com.shreejee.Inventory.controller;
 
-import com.shreejee.Inventory.dto.StoreDto;
+import com.shreejee.Inventory.dto.request.StoreRq;
+import com.shreejee.Inventory.dto.response.StoreRs;
 import com.shreejee.Inventory.service.StoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/store")
 public class StoreController {
 
     private final StoreService storeService;
@@ -23,21 +24,21 @@ public class StoreController {
         this.storeService = storeService;
     }
 
-    @GetMapping("store/{materialId}")
-    public ResponseEntity<StoreDto> getStoreData(@PathVariable Long materialId) {
-        StoreDto storeDto = storeService.findByMaterialId(materialId);
+    @GetMapping("/{materialId}")
+    public ResponseEntity<StoreRs> getStoreData(@PathVariable Long materialId) {
+        StoreRs storeDto = storeService.findByMaterialId(materialId);
         return new ResponseEntity<>(storeDto, HttpStatus.OK);
     }
 
-    @GetMapping("store/all")
-    public ResponseEntity<List<StoreDto>> getStoreList() {
-        List<StoreDto> storeDtos = storeService.fetchAllStore();
+    @GetMapping()
+    public ResponseEntity<List<StoreRs>> getStoreList() {
+        List<StoreRs> storeDtos = storeService.fetchAllStore();
         return new ResponseEntity<>(storeDtos, HttpStatus.OK);
     }
 
-    @PostMapping("store")
-    public ResponseEntity<StoreDto> saveStore (@RequestBody StoreDto storeDto) {
-        storeDto = storeService.save(storeDto);
-        return new ResponseEntity<>(storeDto, HttpStatus.OK);
+    @PostMapping
+    public ResponseEntity<StoreRs> saveStore (@RequestBody StoreRq storeCreateRq) {
+        StoreRs storeRs = storeService.save(storeCreateRq);
+        return new ResponseEntity<>(storeRs, HttpStatus.OK);
     }
 }

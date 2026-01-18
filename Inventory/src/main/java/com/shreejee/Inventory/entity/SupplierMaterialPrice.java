@@ -19,7 +19,7 @@ import java.time.LocalDate;
 
 
 @Entity
-@Table(name = "supplier_material")
+@Table(name = "supplier_material_price")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder

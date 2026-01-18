@@ -1,7 +1,7 @@
 package com.shreejee.Inventory.controller;
 
-import com.shreejee.Inventory.dto.ArticleBomDto;
-import com.shreejee.Inventory.entity.ArticleBom;
+import com.shreejee.Inventory.dto.request.ArticleBomCreateRq;
+import com.shreejee.Inventory.dto.response.ArticleBomRs;
 import com.shreejee.Inventory.service.ArticleBomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/articleBom")
 public class ArticleBomController {
 
     private final ArticleBomService articleBomService;
@@ -24,16 +25,16 @@ public class ArticleBomController {
         this.articleBomService = articleBomService;
     }
 
-    @GetMapping("articleBom/{articleColorId}")
-    public ResponseEntity<List<ArticleBomDto>> getArticleBomList(@PathVariable Long articleColorId) {
+    @GetMapping()
+    public ResponseEntity<ArticleBomRs> getArticleBomList(@RequestParam Long articleId, Long articleColorId) {
 
-        List<ArticleBomDto> articleColorBomDto = articleBomService.getArticleColorBom(articleColorId);
-        return new ResponseEntity<>(articleColorBomDto, HttpStatus.OK);
+        ArticleBomRs articleBom = articleBomService.getArticleBomByArticleIdAndColorId(articleId, articleColorId);
+        return new ResponseEntity<>(articleBom, HttpStatus.OK);
     }
 
-    @PostMapping("articleBom")
-    public ResponseEntity<ArticleBomDto> saveArticleBom(@RequestBody ArticleBomDto articleBomDto) {
-        articleBomDto = articleBomService.saveArticleBom(articleBomDto);
-        return new ResponseEntity<>(articleBomDto, HttpStatus.OK);
+    @PostMapping()
+    public ResponseEntity<ArticleBomRs> saveArticleBom(@RequestBody ArticleBomCreateRq articleBomCreateRq) {
+        ArticleBomRs articleBomRs  = articleBomService.saveArticleBom(articleBomCreateRq);
+        return new ResponseEntity<>(articleBomRs, HttpStatus.OK);
     }
 }

@@ -1,74 +1,77 @@
 package com.shreejee.Inventory.service;
 
-import com.shreejee.Inventory.dto.StoreDto;
+import com.shreejee.Inventory.dto.request.StoreRq;
+import com.shreejee.Inventory.dto.response.StoreRs;
+import com.shreejee.Inventory.entity.Material;
 import com.shreejee.Inventory.entity.Store;
+import com.shreejee.Inventory.projection.StoreProjection;
 import com.shreejee.Inventory.repo.StoreRepo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.shreejee.Inventory.utils.DtoConvertors.generateMaterialDto;
-import static com.shreejee.Inventory.utils.DtoConvertors.generateMaterialFromDto;
 
 @Service
 public class StoreService {
 
     private final StoreRepo storeRepo;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public StoreService(StoreRepo storeRepo) {
         this.storeRepo = storeRepo;
     }
 
-    public StoreDto findByMaterialId(Long materialId) {
+    public StoreRs findByMaterialId(Long materialId) {
 
         Optional<Store> storeOptional = storeRepo.findByMaterialId(materialId);
-        return  storeOptional.map(store -> StoreDto.builder()
+        return  storeOptional.map(store -> StoreRs.builder()
                 .id(store.getId())
-                .materialDto(generateMaterialDto(store.getMaterial()))
                 .quantity(store.getQuantity())
                 .build()).orElse(null);
-
     }
 
-    public List<StoreDto> fetchAllStore () {
-
-        List<Store> storeList = storeRepo.findAll();
-        return storeList.stream()
-                .map(store -> StoreDto.builder()
-                        .id(store.getId())
-                        .materialDto(generateMaterialDto(store.getMaterial()))
-                        .quantity(store.getQuantity())
+    public List<StoreRs> fetchAllStore () {
+        List<StoreProjection> storeProjectionList = storeRepo.findAllMaterials();
+        return storeProjectionList.stream()
+                .map(storeProjection -> StoreRs.builder()
+                        .id(storeProjection.getId())
+                        .quantity(storeProjection.getQuantity())
+                        .materialName(storeProjection.getMaterialName())
+                        .materialColor(storeProjection.getMaterialColor())
+                        .unitOfMeasure(storeProjection.getUnitOfMeasure())
+                        .subCategory(storeProjection.getSubCategory())
                         .build())
                 .toList();
     }
 
-    public StoreDto save(StoreDto storeDto) {
+    public StoreRs save(StoreRq storeRq) {
 
         Store store = Store.builder()
-                .quantity(storeDto.getQuantity())
-                .material(generateMaterialFromDto(storeDto.getMaterialDto()))
+                .quantity(storeRq.quantity())
+                .material(entityManager.getReference(Material.class, storeRq.materialId()))
                 .build();
 
         store = storeRepo.save(store);
-        return StoreDto.builder()
+        return StoreRs.builder()
                 .id(store.getId())
-                .quantity(store.getQuantity())
                 .build();
     }
 
-    public StoreDto updateStore(StoreDto storeDto) {
+    public StoreRs updateStore(StoreRq storeRq) {
 
         Store store = null;
-
         synchronized (this) {
-            store = storeRepo.findById(storeDto.getId()).orElse(null);
-            if (store == null ) return this.save(storeDto);
-            store.setQuantity(store.getQuantity().add(storeDto.getQuantity()));
+            store = storeRepo.findById(storeRq.id()).orElse(null);
+            if (store == null ) return this.save(storeRq);
+            store.setQuantity(store.getQuantity().add(storeRq.quantity()));
             store = storeRepo.save(store);
         }
-
-        return StoreDto.builder()
+        return StoreRs.builder()
                 .id(store.getId())
                 .quantity(store.getQuantity())
                 .build();

@@ -11,7 +11,6 @@ import com.shreejee.Inventory.entity.SalesOrder;
 import com.shreejee.Inventory.entity.SalesOrderLine;
 import com.shreejee.Inventory.enums.SalesOrderStatus;
 import com.shreejee.Inventory.repo.BrandRepo;
-import com.shreejee.Inventory.repo.SalesArticlePriceRepo;
 import com.shreejee.Inventory.repo.SalesOrderRepo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -31,7 +30,7 @@ public class SalesOrderService {
     private final BrandRepo brandRepo; // to validate brandId exists
 
     @PersistenceContext
-    private final EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Transactional
     public SalesOrderRs save(SalesOrderRq salesOrderRq) {

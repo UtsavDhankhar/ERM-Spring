@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface MaterialRepo extends JpaRepository<Material, Long> {
 
-    List<Material> findByCategory(String category);
+    List<Material> findBySubCategory(String category);
 }
